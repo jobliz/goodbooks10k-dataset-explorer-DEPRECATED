@@ -11,8 +11,6 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
-import axios from 'axios';
-
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -171,35 +169,6 @@ class IntegrationReactSelect extends React.Component {
     multi: null,
   };
 
-  constructor(props) {
-    super(props);
-
-    this.tags = [];
-
-    var query = {
-      "aggs": {
-        "byTag": {
-          "terms": {
-            "field": "tag_nested.name.keyword",
-            "size": 1000
-          }
-        }
-      },
-      "size": 0
-    }
-
-    axios.get('http://localhost:9200/babelcodex_test_nested/media/_search', {
-      params: {
-        source: JSON.stringify(query),
-        source_content_type: 'application/json'
-      }
-    }).then((res) => {
-      res.data.aggregations.byTag.buckets.map((bucket) => {
-        this.tags.push({label: bucket.key, value: bucket.key})
-      })
-    });
-  }
-
   handleChange = name => value => {
     this.setState({
       [name]: value,
@@ -216,6 +185,8 @@ class IntegrationReactSelect extends React.Component {
       }),
     };
 
+    let label = this.props.label;
+
     return (
       <div className={classes.root}>
         <NoSsr>
@@ -223,17 +194,17 @@ class IntegrationReactSelect extends React.Component {
             classes={classes}
             styles={selectStyles}
             textFieldProps={{
-              label: 'Label',
+              label: label,
               InputLabelProps: {
                 shrink: true,
               },
             }}
             /* options={suggestions} */
-            options={this.tags}
+            options={this.props.tags}
             components={components}
-            value={this.state.multi}
-            onChange={this.handleChange('multi')}
-            placeholder="Select multiple countries"
+            value={this.props.select_with}
+            onChange={this.props.onChange}
+            placeholder={this.props.placeholder}
             isMulti
           />
         </NoSsr>

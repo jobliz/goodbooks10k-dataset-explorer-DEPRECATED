@@ -22,9 +22,13 @@
   font-size: large;
 }
 
-.content {
+.search-area {
   width: 80%;
   margin: 0 auto;
+}
+
+.search-field {
+  margin-bottom: 24px;
 }
 
 @keyframes App-logo-spin {

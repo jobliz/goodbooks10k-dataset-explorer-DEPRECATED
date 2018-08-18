@@ -28,13 +28,6 @@ class SearchTextField extends React.Component {
     this.props = props;
   }
 
-  /*
-  handleChange = name => event => {
-    this.setState({
-      [name]: event.target.value,
-    });
-  };*/
-
   render() {
     const { classes } = this.props;
 
