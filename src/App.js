@@ -22,8 +22,8 @@ class App extends Component {
       'tags': [],
       // TODO: title_search seems to not have effect at the start in the searchbox value?
       'title_search': '',
-      'select_with': '',
-      'select_without': '',
+      'select_with': [],
+      'select_without': [],
       'results': []
     };
   }
@@ -142,6 +142,12 @@ class App extends Component {
     var cards = [];
 
     this.state.results.map((result) => {
+      var tag_list = []
+
+      result.tag_list.map((tag) => {
+        tag_list.push(tag + " ");
+      })
+
       cards.push(
       <Card key={result.id}>
         <CardContent>
@@ -149,7 +155,7 @@ class App extends Component {
             {result.title}
           </Typography>
           <Typography component="p">
-            {result.tag_list}
+            {tag_list}
           </Typography>
         </CardContent>
       </Card>)
