@@ -66,7 +66,7 @@ class App extends Component {
         without_list.push({"match": {"tag_nested.name.keyword": item.value}})
       })
       
-      query['query']['bool']['without'] = without_list
+      query['query']['bool']['must_not'] = without_list
     }
 
     // search by title
