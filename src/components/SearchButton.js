@@ -17,7 +17,7 @@ function SearchButton(props) {
   return (
     <div>
       <Button onClick={props.onClick} variant="contained" color="primary" className={classes.button}>
-        Primary
+        Search
       </Button>
     </div>
   );

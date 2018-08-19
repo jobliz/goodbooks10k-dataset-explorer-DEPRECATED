@@ -4,11 +4,15 @@ import axios from 'axios';
 import Card from '@material-ui/core/Card';
 import Typography from '@material-ui/core/Typography';
 import CardContent from '@material-ui/core/CardContent';
-
 import SimpleAppBar from './components/AppBar';
 import SearchTextField from './components/SearchTextField';
-import IntegrationReactSelect from './components/AutocompleteWithTags';
 import SearchButton from './components/SearchButton';
+
+import VirtualizedTagSelect from './components/VirtualizedTagSelect';
+
+import "react-select/dist/react-select.css";
+import "react-virtualized/styles.css";
+import "react-virtualized-select/styles.css";
 import './App.css';
 
 class App extends Component {
@@ -22,8 +26,8 @@ class App extends Component {
       'tags': [],
       // TODO: title_search seems to not have effect at the start in the searchbox value?
       'title_search': '',
-      'select_with': [],
-      'select_without': [],
+      'select_with': "",
+      'select_without': "",
       'results': []
     };
   }
@@ -52,21 +56,19 @@ class App extends Component {
     var query = {"query":{"bool": {}}};
 
     // if there are tags to be searched, add them to the query
-    if(typeof this.state.select_with.map === "function") {
-      this.state.select_with.map((item) => {
-        with_list.push({"match": {"tag_nested.name.keyword": item.value}})
+    if(this.state.select_with !== "") {
+      this.state.select_with.split(',').map((item) => {
+        with_list.push({"match": {"tag_nested.name.keyword": item}})
       })
-
-      query['query']['bool']['must'] = with_list
+      query['query']['bool']['must'] = with_list;
     }
 
     // if there are tags to be ommited, add them to the query
-    if(typeof this.state.select_without.map === "function") {
-      this.state.select_without.map((item) => {
-        without_list.push({"match": {"tag_nested.name.keyword": item.value}})
+    if(this.state.select_without !== "") {
+      this.state.select_without.split(',').map((item) => {
+        without_list.push({"match": {"tag_nested.name.keyword": item}})
       })
-      
-      query['query']['bool']['must_not'] = without_list
+      query['query']['bool']['must_not'] = without_list;
     }
 
     // search by title
@@ -107,18 +109,14 @@ class App extends Component {
     });
   };
 
-  // TODO: check if tag exists in the other select, refuse it if so.
-
-  handleWithTagSelectChange(event) {
-    this.setState({
-      select_with: event
-    })
+  // TODO: check if tag exists in the other select, refuse it if so. 
+  // creates a comma-separated string, tag,mytag2,etc
+  handleTagWithSelect(event) {
+    this.setState({'select_with': event});
   }
 
-  handleWithoutTagSelectChange(event) {
-    this.setState({
-      select_without: event
-    })
+  handleTagWithoutSelect(event) {
+    this.setState({'select_without': event});
   }
 
   loadTags() {
@@ -131,10 +129,13 @@ class App extends Component {
       let newTags = []
       
       res.data.aggregations.byTag.buckets.map((bucket) => {
-        newTags.push({label: bucket.key, value: bucket.key})
+        newTags.push({
+          name: bucket.key,
+          type: 'name'
+        })
       });
 
-      this.setState({'tags': newTags})
+      this.setState({'tags': newTags});
     });
   }
 
@@ -172,24 +173,25 @@ class App extends Component {
               onChange={this.handleSearchFieldChange.bind(this)} >
             </SearchTextField>
           </div>
-          <div className="search-field">
-            <IntegrationReactSelect 
-              label="Tags to include"
-              placeholder="Select tags"
-              value={this.state.select_with} 
-              tags={this.state.tags}
-              onChange={this.handleWithTagSelectChange.bind(this)} 
-            > </IntegrationReactSelect>
+
+          <div>
+            <span>Select tags to include:</span>
+            <VirtualizedTagSelect
+              onChange={this.handleTagWithSelect.bind(this)}
+              options={this.state.tags}
+              value={this.state.select_with}
+            ></VirtualizedTagSelect>
           </div>
-          <div className="search-field">
-            <IntegrationReactSelect
-              label="Tags to exclude"
-              placeholder="Select tags"
-              value={this.state.select_without} 
-              tags={this.state.tags}
-              onChange={this.handleWithoutTagSelectChange.bind(this)} 
-            > </IntegrationReactSelect>
+
+          <div>
+            <span>Select tags to exclude:</span>
+            <VirtualizedTagSelect
+              onChange={this.handleTagWithoutSelect.bind(this)}
+              options={this.state.tags}
+              value={this.state.select_without}
+            ></VirtualizedTagSelect>
           </div>
+
           <SearchButton onClick={this.handleSearchButtonClick.bind(this)} />
         </div>
         <div>
